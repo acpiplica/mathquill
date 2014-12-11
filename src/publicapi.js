@@ -94,6 +94,17 @@ var AbstractMathQuill = P(function(_) {
     this.__controller.root.postOrder('reflow');
     return this;
   };
+  _.startSelection = function(pointA, pointB) {
+    var pointANode = this.__controller.root.childForPoint(pointA.x, pointA.y) || this.__controller.root;
+    var pointBNode = this.__controller.root.childForPoint(pointB.x, pointB.y) || this.__controller.root;
+    this.__controller.seek(pointANode.jQ, pointA.x, pointA.y).cursor.startSelection();
+  };
+  _.setSelection = function(pointA, pointB) {
+    var pointANode = this.__controller.root.childForPoint(pointA.x, pointA.y) || this.__controller.root;
+    var pointBNode = this.__controller.root.childForPoint(pointB.x, pointB.y) || this.__controller.root;
+    if (!this.__controller.cursor.anticursor) this.__controller.seek(pointANode.jQ, pointA.x, pointA.y).cursor.startSelection();
+    this.__controller.seek(pointBNode.jQ, pointB.x, pointB.y).cursor.select();
+  };
 });
 MathQuill.prototype = AbstractMathQuill.prototype;
 
