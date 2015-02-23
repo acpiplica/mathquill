@@ -98,6 +98,10 @@ var AbstractMathQuill = P(function(_) {
     this.__controller.seek(pointANode.jQ, pointA.x, pointA.y).cursor.startSelection();
     this.__controller.seek(pointBNode.jQ, pointB.x, pointB.y).cursor.select();
   };
+  _.clearSelection = function() {
+    this.__controller.cursor.clearSelection();
+    return this;
+  };
 });
 MathQuill.prototype = AbstractMathQuill.prototype;
 
