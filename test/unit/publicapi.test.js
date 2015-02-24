@@ -102,7 +102,9 @@ suite('Public API', function() {
       assert.equal(mq.text(), '');
       mq.typedText('\\');
       assert.equal(mq.text(), '\\');
-      mq.typedText('sqrt');
+      mq.typedText('s');
+      assert.equal(mq.text(), '\\s');
+      mq.typedText('qrt');
       assert.equal(mq.text(), '\\sqrt');
     });
     
