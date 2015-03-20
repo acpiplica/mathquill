@@ -125,8 +125,8 @@ var Node = P(function(_) {
       var rect = {
         x: this.jQ.offset().left,
         y: this.jQ.offset().top,
-        width: this.jQ.width(),
-        height: this.jQ.height()
+        width: this.jQ.innerWidth(),
+        height: this.jQ.innerHeight()
       };
 
       var pointInsideLeft = rect.x <= x;
@@ -140,13 +140,13 @@ var Node = P(function(_) {
   _.childForPoint = function(x, y) {
     var nodeForPoint;
     if (this.containsPoint(x, y)) {
-      nodeForPoint = this;
       this.eachChild(function() {
         nodeForPoint = this.containsPoint(x, y);
         if (nodeForPoint) {
           return false;
         }
-     });
+      });
+      nodeForPoint = nodeForPoint || this;
     }
     return nodeForPoint;
   };
