@@ -349,6 +349,49 @@ suite('Public API', function() {
 
       $(mq.el()).remove();
     });
+    test('space behaves like tab when spaceBehavesLikeTab is exceptRootBlock', function() {
+      var opts = { 'spaceBehavesLikeTab': 'exceptRootBlock' };
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts);
+      rootBlock = mq.__controller.root;
+      cursor = mq.__controller.cursor;
+
+      mq.typedText('1 1/2');
+      assert.equal(mq.latex(), '1\\ \\frac{1}{2}', 'latex is ' + mq.latex());
+
+      mq.typedText(' ');
+      assert.equal(cursor[R], 0, 'right cursor is ' + cursor[R]);
+
+      $(mq.el()).remove();
+    });
+    test('space behaves like tab when globally set to exceptRootBlock', function() {
+      MathQuill.config({ spaceBehavesLikeTab: 'exceptRootBlock' });
+
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
+      rootBlock = mq.__controller.root;
+      cursor = mq.__controller.cursor;
+
+      mq.typedText('1 1/2');
+      assert.equal(mq.latex(), '1\\ \\frac{1}{2}', 'latex is ' + mq.latex());
+
+      mq.typedText(' ');
+      assert.equal(cursor[R], 0, 'right cursor is ' + cursor[R]);
+
+      $(mq.el()).remove();
+    });
+    test('compare latex for space behaves like tab true to exceptRootBlock', function() {
+      var opts = { 'spaceBehavesLikeTab': 'exceptRootBlock' };
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts);
+      mq.typedText('1/2 ');
+
+      var opts2 = { 'spaceBehavesLikeTab': true };
+      var mq2 = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts2);
+      mq2.typedText('1/2 ');
+
+      assert.equal(mq.latex(), mq2.latex(), 'latex should be the same ' + '\'' + mq.latex() + '\' and \'' + mq2.latex() + '\'');
+
+      $(mq.el()).remove();
+      $(mq2.el()).remove();
+    });
   });
 
   suite('statelessClipboard option', function() {
@@ -653,6 +696,22 @@ suite('Public API', function() {
 
       mq.cmd('0');
       assert.equal(mq.latex(), '\\sum_{n=0}^{ }', 'cursor after the `n=`');
+
+      $(mq.el()).remove();
+    });
+  });
+
+  suite('substituteTextarea', function() {
+    test('doesn\'t blow up on selection', function() {
+      var mq = MathQuill.MathField($('<span>').appendTo('#mock')[0], {
+        substituteTextarea: function() {
+          return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />')[0];
+        }
+      });
+
+      assert.equal(mq.latex(), '');
+      mq.write('asdf');
+      mq.select();
 
       $(mq.el()).remove();
     });
