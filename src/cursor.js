@@ -224,9 +224,8 @@ var Cursor = P(Point, function(_) {
     if (rightEnd instanceof Point) rightEnd = rightEnd[L];
 
 		// adjust selections to be mathematically meaningful
-    // TODO: should this be moved to a separate method elsewhere?
     if (this.options.strictOperatorSelection) {
-      var isUnaryOp = function(ctrlSeq) {
+      var isPrefixOp = function(ctrlSeq) {
         // different dashes can be used for the minus sign
         return ctrlSeq === '–' || ctrlSeq === '-' || ctrlSeq === '\\pm ';
       };
@@ -235,8 +234,8 @@ var Cursor = P(Point, function(_) {
         return ctrlSeq === '+' || ctrlSeq === '\\div ' || ctrlSeq === '\\cdot ' || ctrlSeq === '=';
       };
 
-      var isOp = function(ctrlSeq) {
-        return isUnaryOp(ctrlSeq) || isBinaryOp(ctrlSeq);
+      var isStrictOp = function(ctrlSeq) {
+        return isPrefixOp(ctrlSeq) || isBinaryOp(ctrlSeq);
       };
 
       // returns the element to use for looking for siblings
@@ -267,28 +266,26 @@ var Cursor = P(Point, function(_) {
         return elt[dir] ? elt[dir] : elt;
       };
 
-      // index selection on an operator
-      if (leftEnd === rightEnd && isOp(leftEnd.ctrlSeq)) {
-        var untagged = isBinaryOp(leftEnd.ctrlSeq);
-
-        // if we're in a class or textcolor wrapper, jump left and right ends up to that level
+      // selecting just a strict operator
+      if (leftEnd === rightEnd && isStrictOp(leftEnd.ctrlSeq)) {
+        // if we're in a class or textcolor wrapper, set left and right ends up to that level
         leftEnd = rightEnd = eltForSiblings(leftEnd);
 
-        // if the index is untagged, grab the left sib
-        if (untagged) leftEnd = grabSib(leftEnd, L);
+        // if the selected operator is binary, grab the left sib
+        if (isBinaryOp(leftEnd.ctrlSeq)) leftEnd = grabSib(leftEnd, L);
 
         // grab the right sib
         rightEnd = grabSib(rightEnd, R);
       }
 
-      // if the left end is untagged, grab its left sib
+      // if the selection's left end is a binary operator, grab its left sib
       if (isBinaryOp(eltForOp(leftEnd).ctrlSeq)) leftEnd = grabSib(leftEnd, L);
 
-      // if the left sib of the left end is tagged, grab it
-      if (isUnaryOp(eltForOp(grabSib(leftEnd, L)).ctrlSeq)) leftEnd = grabSib(leftEnd, L);
+      // if the left sib of the selection's left end is a prefix operator, grab it
+      if (isPrefixOp(eltForOp(grabSib(leftEnd, L)).ctrlSeq)) leftEnd = grabSib(leftEnd, L);
 
-      // if the right end is an op, grab its right sib
-      if (isOp(eltForOp(rightEnd).ctrlSeq)) rightEnd = grabSib(rightEnd, R);
+      // if the selection's right end is an op, grab its right sib
+      if (isStrictOp(eltForOp(rightEnd).ctrlSeq)) rightEnd = grabSib(rightEnd, R);
     }
 
     this.hide().selection = lca.selectChildren(leftEnd, rightEnd);
